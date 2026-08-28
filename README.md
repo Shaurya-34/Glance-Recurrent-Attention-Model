@@ -41,14 +41,14 @@ The sensor uses `torch.nn.functional.affine_grid` and `grid_sample` to extract a
 
 The default model configuration uses:
 
-- `patch_size = 8`
-- `zoom_factors = [1.0, 2.0]`
-- `glimpse_dim = 128`
-- `hidden_dim = 256`
-- `num_classes = 10`
-- policy standard deviation `std = 0.25` in the translated/cluttered experiments
-- `6` glimpses for standard MNIST
-- `8` glimpses for translated MNIST experiments
+* `patch_size = 8`
+* `zoom_factors = [1.0, 2.0]`
+* `glimpse_dim = 128`
+* `hidden_dim = 256`
+* `num_classes = 10`
+* policy standard deviation `std = 0.25` in the translated/cluttered experiments
+* `6` glimpses for standard MNIST
+* `8` glimpses for translated MNIST experiments
 
 Locations are represented in normalized `[-1, 1]` coordinates. During training they are sampled from a Gaussian centered on the location head's output and then clamped to the valid range.
 
@@ -93,6 +93,8 @@ Each `28×28` digit is randomly placed inside a `60×60` canvas. This forces the
 
 The experiment uses `8` glimpses and `std=0.25` for the stochastic location policy.
 
+**Recorded notebook result:** **92.49% test accuracy**.
+
 The learned trajectories are visualized directly on the translated digits:
 
 ![Translated MNIST trajectories](assets/img5.png)
@@ -107,9 +109,13 @@ An example of the learned search behavior after extended cluttered training:
 
 ![Cluttered MNIST attention trajectories](assets/img8.png)
 
-After an additional `25` training epochs, the notebook records:
+The cluttered experiment was trained progressively, with the following recorded test accuracies:
 
-**Final test accuracy: 67.39%**
+* **25 epochs:** 67.39%
+* **50 total epochs:** 81.15%
+* **75 total epochs:** **84.09%**
+
+The final recorded test accuracy after 75 epochs is therefore **84.09%**.
 
 The notebook also plots the attention trajectories, making it possible to inspect where the policy looks over time.
 
@@ -128,10 +134,13 @@ Image → glimpse 1 → glimpse 2 → ... → glimpse T → prediction
 
 ## Results at a glance
 
-| Experiment | Canvas | Glimpses | Recorded test accuracy |
-|---|---:|---:|---:|
-| Standard MNIST | 28×28 | 6 | **94.09%** |
-| Cluttered + Translated MNIST | 60×60 | 8 | **67.39%** |
+| Experiment                   | Canvas | Glimpses |        Training | Recorded test accuracy |
+| ---------------------------- | -----: | -------: | --------------: | ---------------------: |
+| Standard MNIST               |  28×28 |        6 |        5 epochs |             **94.09%** |
+| Translated MNIST             |  60×60 |        8 |       20 epochs |             **92.49%** |
+| Cluttered + Translated MNIST |  60×60 |        8 |       25 epochs |                 67.39% |
+| Cluttered + Translated MNIST |  60×60 |        8 | 50 total epochs |                 81.15% |
+| Cluttered + Translated MNIST |  60×60 |        8 | 75 total epochs |             **84.09%** |
 
 The cluttered setting is substantially harder: the model must locate the relevant digit among multiple distractor patches.
 
@@ -143,12 +152,12 @@ The project is currently organized as a **Google Colab notebook** rather than a 
 
 The notebook uses:
 
-- Python 3
-- PyTorch
-- Torchvision
-- NumPy
-- Matplotlib
-- Kaggle API for the initial raw-MNIST download
+* Python 3
+* PyTorch
+* Torchvision
+* NumPy
+* Matplotlib
+* Kaggle API for the initial raw-MNIST download
 
 A CUDA-enabled GPU is used when available.
 
@@ -194,11 +203,11 @@ This repository is intentionally notebook-driven. The same notebook contains sev
 
 A few details worth knowing when reading or extending the code:
 
-- The initial attention location is randomly sampled in `[-1, 1]` for each training example in the translated/cluttered model.
-- In evaluation mode, the model uses the predicted location mean directly instead of sampling from the Gaussian policy.
-- The final class prediction is produced from the **last recurrent hidden state**, after the configured number of glimpses.
-- The current reward is terminal and based only on whether the final prediction is correct.
-- The notebook contains exploratory/demo cells in addition to the final training loops, so it should be read as an experimental implementation rather than a polished training framework.
+* The initial attention location is randomly sampled in `[-1, 1]` for each training example in the translated/cluttered model.
+* In evaluation mode, the model uses the predicted location mean directly instead of sampling from the Gaussian policy.
+* The final class prediction is produced from the **last recurrent hidden state**, after the configured number of glimpses.
+* The current reward is terminal and based only on whether the final prediction is correct.
+* The notebook contains exploratory/demo cells in addition to the final training loops, so it should be read as an experimental implementation rather than a polished training framework.
 
 ## Background
 
@@ -208,19 +217,19 @@ This project follows the core idea from:
 
 The key idea is to learn a task-dependent sequence of visual observations instead of processing the full image at every step.
 
-Paper: https://arxiv.org/abs/1406.6247
+Paper: [https://arxiv.org/abs/1406.6247](https://arxiv.org/abs/1406.6247)
 
 ## Future directions
 
 Natural next steps would be:
 
-- move the model and datasets into reusable `.py` modules
-- add deterministic experiment configurations and seeds
-- save/load checkpoints
-- log per-epoch validation metrics
-- compare against a CNN baseline
-- test different glimpse counts, scales, and policy variances
-- improve the reward/policy formulation for cluttered scenes
+* move the model and datasets into reusable `.py` modules
+* add deterministic experiment configurations and seeds
+* save/load checkpoints
+* log per-epoch validation metrics
+* compare against a CNN baseline
+* test different glimpse counts, scales, and policy variances
+* improve the reward/policy formulation for cluttered scenes
 
 ## License
 
