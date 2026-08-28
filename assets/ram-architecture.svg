@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="520" viewBox="0 0 1100 520">
+<rect width="1100" height="520" fill="#ffffff"/>
+<g font-family="Arial, Helvetica, sans-serif" fill="#111827">
+<text x="550" y="42" text-anchor="middle" font-size="26" font-weight="700">Recurrent Attention Model</text>
+<text x="550" y="70" text-anchor="middle" font-size="15" fill="#6b7280">Sequential visual search + recurrent state + learned location policy</text>
+<g stroke="#374151" stroke-width="2" fill="#f9fafb">
+<rect x="55" y="120" width="150" height="72" rx="12"/><rect x="250" y="105" width="190" height="102" rx="12"/><rect x="485" y="105" width="170" height="102" rx="12"/><rect x="700" y="105" width="150" height="102" rx="12"/>
+<rect x="895" y="105" width="150" height="102" rx="12"/>
+<rect x="250" y="300" width="190" height="82" rx="12"/><rect x="485" y="300" width="170" height="82" rx="12"/><rect x="700" y="300" width="150" height="82" rx="12"/>
+</g>
+<g font-size="16" text-anchor="middle">
+<text x="130" y="148" font-weight="700">Input Image</text><text x="130" y="172" font-size="13">28×28 / 60×60</text>
+<text x="345" y="142" font-weight="700">Glimpse Sensor</text><text x="345" y="166" font-size="13">multi-scale crops</text><text x="345" y="187" font-size="13">affine_grid + grid_sample</text>
+<text x="570" y="142" font-weight="700">Glimpse Network</text><text x="570" y="166" font-size="13">glimpse + location</text><text x="570" y="187" font-size="13">→ 128-d embedding</text>
+<text x="775" y="142" font-weight="700">LSTMCell</text><text x="775" y="166" font-size="13">hidden = 256</text><text x="775" y="187" font-size="13">recurrent state</text>
+<text x="970" y="142" font-weight="700">Action Head</text><text x="970" y="166" font-size="13">10 digit classes</text><text x="970" y="187" font-size="13">final prediction</text>
+<text x="345" y="330" font-weight="700">Location Head</text><text x="345" y="354" font-size="13">2-D normalized mean</text>
+<text x="570" y="330" font-weight="700">Gaussian Policy</text><text x="570" y="354" font-size="13">sample next location</text>
+<text x="775" y="330" font-weight="700">Baseline Head</text><text x="775" y="354" font-size="13">reward estimate</text>
+</g>
+<g stroke="#2563eb" stroke-width="3" fill="none" marker-end="url(#a)"><path d="M205 156H250"/><path d="M440 156H485"/><path d="M655 156H700"/><path d="M850 156H895"/><path d="M775 207V300"/><path d="M440 341H485"/><path d="M655 341H700"/><path d="M570 300V207"/></g>
+<defs><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#2563eb"/></marker></defs>
+<text x="550" y="450" text-anchor="middle" font-size="15" fill="#4b5563">Training: Cross-Entropy + REINFORCE Policy Loss + Baseline MSE</text>
+<text x="550" y="476" text-anchor="middle" font-size="14" fill="#6b7280">The policy learns where to look; the classifier learns what the sequence contains.</text>
+</g></svg>
