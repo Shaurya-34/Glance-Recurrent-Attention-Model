@@ -23,50 +23,17 @@ During training, the location policy is sampled from a Gaussian distribution and
 
 ## Architecture
 
-```text
-                        ┌──────────────────────┐
-                        │       Input Image     │
-                        └──────────┬───────────┘
-                                   │
-                              location l_t
-                                   │
-                                   ▼
-                     ┌──────────────────────────┐
-                     │     Glimpse Sensor       │
-                     │  multi-scale crop/resize │
-                     └────────────┬─────────────┘
-                                  │
-                         glimpse + location
-                                  │
-                                  ▼
-                     ┌──────────────────────────┐
-                     │     Glimpse Network      │
-                     │      128-d embedding     │
-                     └────────────┬─────────────┘
-                                  │
-                                  ▼
-                     ┌──────────────────────────┐
-                     │       LSTMCell           │
-                     │      hidden size 256     │
-                     └───────┬─────────┬────────┘
-                             │         │
-                    ┌────────┘         └───────────┐
-                    ▼                              ▼
-             Location Head                    Baseline Head
-              2-D mean (tanh)                  reward estimate
-                    │
-                    ▼
-             Gaussian policy
-                    │
-                    ▼
-              next location
+![RAM architecture](assets/ram-architecture.svg)
 
-                         final hidden state
-                                │
-                                ▼
-                         Action / Classifier
-                              10 classes
-```
+## What the model actually sees
+
+The glimpse sensor extracts a small patch around the current location at multiple scales and resizes each crop to a common spatial resolution. This gives the recurrent core both local detail and a broader contextual view.
+
+![Multi-scale glimpse sensor](assets/img3.png)
+
+The sequence below shows how the learned policy moves its attention across an image over multiple timesteps.
+
+![Translated MNIST attention trajectory](assets/img4.png)
 
 ### Multi-scale glimpse sensor
 
@@ -126,13 +93,19 @@ Each `28×28` digit is randomly placed inside a `60×60` canvas. This forces the
 
 The experiment uses `8` glimpses and `std=0.25` for the stochastic location policy.
 
-The notebook also visualizes the learned sequence of glimpse locations over the image.
+The learned trajectories are visualized directly on the translated digits:
+
+![Translated MNIST trajectories](assets/img5.png)
 
 ### 3. Cluttered + Translated MNIST
 
 The cluttered dataset places the target digit randomly on a `60×60` canvas and adds several random `8×8` patches sampled from other MNIST digits.
 
 The attention model is then trained to find the relevant digit while ignoring distractors.
+
+An example of the learned search behavior after extended cluttered training:
+
+![Cluttered MNIST attention trajectories](assets/img8.png)
 
 After an additional `25` training epochs, the notebook records:
 
@@ -152,6 +125,15 @@ This makes the model's behavior directly inspectable:
 Image → glimpse 1 → glimpse 2 → ... → glimpse T → prediction
                          ↘ learned search trajectory ↗
 ```
+
+## Results at a glance
+
+| Experiment | Canvas | Glimpses | Recorded test accuracy |
+|---|---:|---:|---:|
+| Standard MNIST | 28×28 | 6 | **94.09%** |
+| Cluttered + Translated MNIST | 60×60 | 8 | **67.39%** |
+
+The cluttered setting is substantially harder: the model must locate the relevant digit among multiple distractor patches.
 
 ## Running the notebook
 
@@ -196,8 +178,14 @@ The first section downloads the MNIST dataset through Kaggle. If you use that pa
 
 ```text
 .
-├── Glance.ipynb   # complete implementation, experiments, training and visualization
-└── README.md      # project documentation
+├── Glance.ipynb
+├── assets/
+│   ├── ram-architecture.svg
+│   ├── img3.png
+│   ├── img4.png
+│   ├── img5.png
+│   └── img8.png
+└── README.md
 ```
 
 ## Implementation notes
@@ -233,3 +221,11 @@ Natural next steps would be:
 - compare against a CNN baseline
 - test different glimpse counts, scales, and policy variances
 - improve the reward/policy formulation for cluttered scenes
+
+## License
+
+No license file is currently included in the repository.
+
+## Author
+
+**Shaurya-34**
